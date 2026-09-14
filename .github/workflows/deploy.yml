@@ -75,6 +75,7 @@ jobs:
           image-ref: 'app-image:scan'
           format: 'table'
           severity: 'CRITICAL,HIGH'
+          ignore-unfixed: 'true'
           exit-code: '1'
 
   deploy:

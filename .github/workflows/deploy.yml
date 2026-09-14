@@ -1,4 +1,4 @@
-﻿name: CI/CD Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -70,7 +70,7 @@ jobs:
         run: docker build -t app-image:scan .
 
       - name: Run Trivy (Container Scanning)
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: 'app-image:scan'
           format: 'table'

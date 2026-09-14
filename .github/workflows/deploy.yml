@@ -48,23 +48,18 @@ jobs:
       - name: Run Unit Tests
         run: pytest -v
 
-  deploy:
+deploy:
     needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to AWS EC2 via SSH
+      - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ubuntu
-          key: ${{ secrets.VPS_SSH_KEY }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            mkdir -p /home/ubuntu/flask-app
-            cd /home/ubuntu/flask-app
-            if [ -d '.git' ]; then
-              git pull origin main
-            else
-              git clone https://github.com/${{ github.repository }}.git .
-            fi
+            cd /home/ubuntu/christianproyecto2  # Asegúrate de que esta sea la ruta exacta de tu carpeta en el servidor
+            git pull origin main
+            docker compose down
             docker compose up -d --build

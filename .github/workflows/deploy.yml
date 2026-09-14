@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+﻿name: CI/CD Pipeline
 
 on:
   push:
@@ -48,8 +48,38 @@ jobs:
       - name: Run Unit Tests
         run: pytest -v
 
-  deploy:
+  security:
     needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Bandit (SAST)
+        run: bandit -r . -x ./test_app.py
+
+      - name: Build Docker image for scanning
+        run: docker build -t app-image:scan .
+
+      - name: Run Trivy (Container Scanning)
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: 'app-image:scan'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+
+  deploy:
+    needs: security
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to Server via SSH
